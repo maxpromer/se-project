@@ -1,0 +1,288 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>โปรแกรมเปรียบเทียบราคาสินค้าเกษตร</title>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/all-chart.js"></script>
+<link rel="stylesheet" href="fonts/supermarket.css">
+<link rel="stylesheet" href="css/index.css">
+
+<script src="js/Chart.min.js"></script>
+
+<script>
+$(function() {
+    $("#keyword").keyup(function() {
+        let keyword = $(this).val();
+        
+		/*
+        $.getJSON("https://dataapi.moc.go.th/gis-products?keyword=" + encodeURI(keyword), function(data) {
+            console.log(data);
+			
+			var html = "";
+			for (var i=0;i<data.length;i++) {
+				html += "<li data-product-id=\"" + data[i].product_id + "\">";
+				html += "<span class=\"name\">" + data[i].product_name + "</span>";
+                html += "<span class=\"count\"></span>";
+            	html += "</li>";
+			}
+			$("#autocomplete > ul").html(html);
+			if (data.length > 0) {
+				$("#autocomplete").show();
+			} else {
+				$("#autocomplete").hide();
+			}
+			
+			$("#autocomplete > ul > li").click(function() {
+				$("#keyword").val($(this).find(".name").text());
+				product_id = $(this).attr("data-product-id");
+				
+				$("#autocomplete").hide();
+				
+				setTimeout(function() {
+					$("#search").fadeOut(500, function() {
+						var today = new Date();
+						var tMonth = today.getMonth() + 1;
+						var yyyy = today.getFullYear();
+						if ((tMonth - 1) < 1) {
+							tMonth = 12 - (1 - tMonth);
+							yyyy = yyyy - 1;
+						}
+						var mm = String(tMonth).padStart(2, '0'); //January is 0!
+						to_date = yyyy + "-" + mm + "-01";
+
+						var m = today.getMonth() + 1;
+						var yyyy = today.getFullYear();
+						var from_m = m;
+						if ((m - 7) < 1) {
+							from_m = 12 - (6 - m);
+							yyyy = yyyy - 1;
+						}
+						var from_mm = String(from_m).padStart(2, '0');
+						from_date = yyyy + "-" + from_mm + "-01";
+
+						$.getJSON("https://dataapi.moc.go.th/gis-product-prices?product_id=" + encodeURI(product_id) + "&from_date=" + encodeURI(from_date) +"&to_date=" + encodeURI(to_date), function(data) {
+							console.log(data);
+
+							config.options.title.text = $("#keyword").val();
+
+							var now_m = (new Date(data.price_list[0].date)).getMonth() + 1;
+							var sum = 0;
+							var count = 0;
+							for (var i=0;i<data.price_list.length;i++) {
+								var it_m = (new Date(data.price_list[i].date)).getMonth() + 1;
+								if (now_m != it_m) { // New Month
+									config.data.labels.push(now_m)
+									config.data.datasets[0].data.push(Math.round(sum / count * 100) / 100);
+
+									count = 0;
+									sum = 0;
+									now_m = it_m;
+								} else {
+									sum += ((data.price_list[i].price_max + data.price_list[i].price_min) / 2);
+									count++;
+								}
+							}
+
+							/*
+							for (var i=0;i<data.price_list.length;i++) {
+								config.data.labels.push(data.price_list[i].date)
+								config.data.datasets[0].data.push((data.price_list[i].price_max + data.price_list[i].price_min) / 2);
+							}
+							*/
+							/*
+							window.myLine.update();
+							$("#result").fadeIn();
+						});
+					});
+				}, 300);
+			});
+        });
+		*/
+		
+		$("#list-in").html("<i>Loading...</i>");
+		$("#list-out").html("<i>Loading...</i>");
+		
+		$.getJSON("https://dataapi.moc.go.th/gis-products?keyword=" + encodeURI(keyword), function(data) {
+            console.log("gis", data);
+			
+			var html = "";
+			for (var i=0;i<data.length;i++) {
+				html += "<li data-product-id=\"" + data[i].product_id + "\">";
+				html += "<span class=\"name\">" + data[i].product_name + "</span>";
+                html += "<span class=\"count\"></span>";
+            	html += "</li>";
+			}
+			$("#list-in").html(html);
+			
+			$("#list-in > li").click(function() {
+				$(this).toggleClass("select");
+			});
+		});
+		
+		$.getJSON("https://dataapi.moc.go.th/products?keyword=" + encodeURI(keyword), function(data) {
+            console.log("Products", data);
+			
+			var html = "";
+			for (var i=0;i<data.length;i++) {
+				if (data[i].hs_description_th == null || data[i].hs_description_th === "อื่น ๆ") {
+					continue;
+				}
+				
+				html += "<li data-hs-code=\"" + data[i].hs_code + "\">";
+				html += "<span class=\"name\">" + data[i].hs_description_th + "</span>";
+                html += "<span class=\"count\"></span>";
+            	html += "</li>";
+			}
+			$("#list-out").html(html);
+			
+			$("#list-out > li").click(function() {
+				$(this).toggleClass("select");
+			});
+		});
+    });
+	
+	$("#let-go").click(function() {
+		var loopReadDataIn = function(inx, max_inx, callback) {
+			var product_id = $($("#list-in > li.select")[inx]).attr("data-product-id");
+			console.log(product_id);
+
+			var today = new Date();
+			var tMonth = today.getMonth() + 1;
+			var yyyy = today.getFullYear();
+			if ((tMonth - 1) < 1) {
+				tMonth = 12 - (1 - tMonth);
+				yyyy = yyyy - 1;
+			}
+			var mm = String(tMonth).padStart(2, '0'); //January is 0!
+			to_date = yyyy + "-" + mm + "-01";
+
+			var m = today.getMonth() + 1;
+			var yyyy = today.getFullYear();
+			var from_m = m;
+			if ((m - 7) < 1) {
+				from_m = 12 - (6 - m);
+				yyyy = yyyy - 1;
+			}
+			var from_mm = String(from_m).padStart(2, '0');
+			from_date = yyyy + "-" + from_mm + "-01";
+
+			$.getJSON("https://dataapi.moc.go.th/gis-product-prices?product_id=" + encodeURI(product_id) + "&from_date=" + encodeURI(from_date) +"&to_date=" + encodeURI(to_date), function(data) {
+				console.log(data);
+				
+				configChartLineIn.data.datasets[inx] = {
+					label: data.product_name,
+					borderColor: window.chartColors.red,
+					data: [],
+					fill: false,
+				};
+
+				var now_m = (new Date(data.price_list[0].date)).getMonth() + 1;
+				var sum = 0;
+				var count = 0;
+				for (var i=0;i<data.price_list.length;i++) {
+					var it_m = (new Date(data.price_list[i].date)).getMonth() + 1;
+					if (now_m != it_m) { // New Month
+						if (inx === 0) configChartLineIn.data.labels.push(now_m)
+						configChartLineIn.data.datasets[inx].data.push(Math.round(sum / count * 100) / 100);
+
+						count = 0;
+						sum = 0;
+						now_m = it_m;
+					} else {
+						sum += ((data.price_list[i].price_max + data.price_list[i].price_min) / 2);
+						count++;
+					}
+				}
+
+				if (inx == max_inx) {
+					window.myLine.update();
+					$("#result").fadeIn();
+					
+					if (typeof callback === "function") {
+						callback();
+					}
+				} else {
+					loopReadDataIn(inx + 1, max_inx, callback);
+				}
+			});
+		};
+		
+		if ($("#list-in > li.select").length > 0) {
+			loopReadDataIn(0, $("#list-in > li.select").length - 1, function() {
+				console.log("OK !");
+			});
+		}
+	});
+});
+	
+
+</script>
+<style>
+
+</style>
+</head>
+
+<body>
+  <header>
+    <img src="img/logo.png" alt="logo">
+    <h1>โปรแกรมเปรียบเทียบราคาสินค้าเกษตรภายในประเทศและส่งออก</h1>
+  </header>
+  
+  <section id="search">
+    <div class="title">
+      <img src="img/magnifying-glass.png">
+      <span>ค้นหาข้อมูลสินค้าเกษตรเพื่อเปรียบเทียบราคา</span>
+    </div>
+    <article>
+      <form action="." method="post">
+        <input type="text" id="keyword" name="keyword" autocomplete="off">
+        <!-- <button type="submit">ค้นหา</button> -->
+        
+        <div id="autocomplete">
+          <ul>
+            <li>
+              <span class="name"></span>
+              <span class="count"></span>
+            </li>
+          </ul>
+        </div>
+      </form>
+    </article>
+    
+    <div class="when-have-keyword">
+	  <hr>
+	  <div class="box-list">
+	    <div class="in">
+          <h2>เลือกรายการในประเทศ</h2>
+          <ul id="list-in">
+            <!--
+            <li>มะพร้าวน้ำหอม</li>
+            -->
+          </ul>
+        </div>
+        <div class="out">
+          <h2>เลือกรายการส่งออก</h2>
+          <ul id="list-out">
+            <!--
+            <li>ต้นมะพร้าว</li>
+            <li>น้ำมันมะพร้าว</li>
+            <li>จาวมะพร้าว</li>
+            -->
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="box-let-go">
+      <button id="let-go">เปรียบเทียบราคา</button>
+    </div>
+  </section>
+  
+  <section id="result">
+    <article>
+      <canvas id="chart-line-in"></canvas>
+    </article>
+  </section>
+</body>
+</html>

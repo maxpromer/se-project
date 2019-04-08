@@ -1,0 +1,195 @@
+* {
+    box-sizing: border-box;
+}
+    
+html, body {
+    padding: 0;
+    margin: 0;
+}
+    
+img {
+    max-width: 100%;
+    height: auto;
+}
+    
+body {
+    background-color: #f0f0f0;
+	font-family: 'supermarket';
+}
+    
+header {
+    background-color: #284243;
+    color: #FFF;
+        
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+    
+header > img {
+    width: 180px;
+    height: 180px;
+    padding: 20px;
+}
+    
+section#search {
+    background: #FFF;
+    width: 800px;
+    margin: auto;
+    margin-top: 100px;
+}
+    
+section#search > .title {
+    background-color: #284243;
+    color: #FFF;
+    font-size: 22px;
+    text-align: center;
+    padding: 6px;
+        
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+    
+section#search > .title > img {
+    width: 32px;
+    height: 32px;
+    margin: 6px;
+}
+    
+section#search > article {
+    text-align: center;
+    padding: 80px;
+}
+    
+section#search > article > form > input {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border: 2px solid #284243;
+    border-radius: 3px;
+    font-size: 16px;
+    color: #284243;
+    outline: none;
+	
+	width: 300px;
+	text-align: center;
+}
+
+section#search > article > form {
+	position: relative;
+}
+
+section#search hr {
+	width: 60%;
+	border: none;
+	border-bottom: 1px solid #CCC;
+}
+
+section#search > .when-have-keyword > .box-list {
+	display: flex;
+	flex-direction: row;
+}
+
+section#search > .when-have-keyword > .box-list h2 {
+	text-align: center;
+}
+
+section#search > .when-have-keyword > .box-list > div {
+	flex-grow: 1;
+	width: 50%;
+	padding: 20px;
+}
+
+section#search > .when-have-keyword > .box-list > div > ul {
+	padding: 0;
+	margin: 0;
+	border: 1px solid #CCC;
+}
+
+section#search > .when-have-keyword > .box-list > div > ul > li {
+	padding: 8px;
+	list-style: none;
+	text-align: left;
+	cursor: pointer;
+}
+
+section#search > .when-have-keyword > .box-list > div > ul > li:hover {
+	background: #F7F7F7;
+}
+
+section#search > .when-have-keyword > .box-list > div > ul > li.select {
+	background: #284243;
+	color: #FFF;
+}
+
+.box-let-go {
+	text-align: center;
+	padding: 20px;
+}
+
+.box-let-go > button {
+    background: #284243;
+    padding: 10px;
+	border: none;
+    border-radius: 3px;
+    font-size: 16px;
+    color: #FFF;
+    outline: none;
+	
+	transition: 300mS all;
+	cursor: pointer;
+}
+
+.box-let-go > button:hover {
+	transform: scale(1.1);
+}
+
+#result {
+	width: 1024px;
+	margin: auto;
+	margin-top: 20px;
+	display: none;
+}
+
+#result > article {
+	background: #FFF;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
+	width: 50%;
+	margin: 10px;
+	padding: 10px;
+}
+
+
+/* autocomplete */
+div#autocomplete {
+	position: absolute;
+	width: 300px;
+    left: calc(50% - 150px);
+	margin-top: -2px;
+	background: #FFF;
+	border: 2px solid #284243;
+	max-height: 200px;
+	overflow-y: auto;
+	
+	display: none;
+}
+
+div#autocomplete > ul {
+	padding: 0;
+	margin: 0;
+}
+
+div#autocomplete > ul > li {
+	list-style: none;
+	text-align: left;
+	padding: 8px;
+	font-size: 12px;
+}
+
+div#autocomplete > ul > li:hover {
+	background: #284243;
+	color: #FFF;
+}
+
