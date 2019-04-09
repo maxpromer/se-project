@@ -11,6 +11,15 @@
 <script src="js/Chart.min.js"></script>
 
 <script>
+var inx = 0;
+var max_inx = 0;
+
+var inx2 = 0;
+var max_inx2 = 0;
+var focus_hs_code = "";
+	
+var dataOutSave = { };
+	
 $(function() {
     $("#keyword").keyup(function() {
         let keyword = $(this).val();
@@ -143,6 +152,7 @@ $(function() {
     });
 	
 	$("#let-go").click(function() {
+		// ราคาภายในประเทศ
 		var loopReadDataIn = function(inx, max_inx, callback) {
 			var product_id = $($("#list-in > li.select")[inx]).attr("data-product-id");
 			console.log(product_id);
@@ -172,7 +182,8 @@ $(function() {
 				
 				configChartLineIn.data.datasets[inx] = {
 					label: data.product_name,
-					borderColor: window.chartColors.red,
+					backgroundColor: window.chartColors[inx%6],
+					borderColor: window.chartColors[inx%6],
 					data: [],
 					fill: false,
 				};
@@ -196,7 +207,7 @@ $(function() {
 				}
 
 				if (inx == max_inx) {
-					window.myLine.update();
+					window.myLineIn.update();
 					$("#result").fadeIn();
 					
 					if (typeof callback === "function") {
@@ -211,6 +222,93 @@ $(function() {
 		if ($("#list-in > li.select").length > 0) {
 			loopReadDataIn(0, $("#list-in > li.select").length - 1, function() {
 				console.log("OK !");
+			});
+		}
+		
+		
+		// ราคานอกประเทศ
+		var argsOut = [];
+		var today = new Date();
+		for (i=0;i<6;i++) {
+			var year, month;
+				
+				
+			if (today.getMonth() - i <= 0) {
+				month = today.getMonth() + 12 - i - 1;
+				year = today.getFullYear() - 1;
+			} else {
+				month = today.getMonth() - i - 1;
+				year = today.getFullYear();
+			}
+				
+			month += 1;
+				
+			argsOut.push({
+				year: year,
+				month: month
+			});
+		}
+		console.log("argsOut", argsOut);
+		
+		var loopReadDataOut = function(callback) {
+			var hs_code = $($("#list-out > li.select")[inx]).attr("data-hs-code");
+
+			var loopGetOutOfMonth = function(callback2) {
+				var year = argsOut[inx2].year;
+				var month = argsOut[inx2].month;
+				
+				console.log("Start get", focus_hs_code, "Y:", year, "M:", month, "inx2:", inx2);
+				
+				$.getJSON("https://dataapi.moc.go.th/export-harmonize-countries?year=" + year + "&month=" + month + "&hs_code=" + focus_hs_code, function(data) {
+					console.log("Get of month", data);
+					
+					if (typeof dataOutSave[focus_hs_code] === "undefined") {
+						dataOutSave[focus_hs_code] = [];
+					}
+					dataOutSave[focus_hs_code].push(data);
+					
+					if (inx2 < max_inx2) {
+						console.log("Next Month");
+						
+						inx2++;
+						loopGetOutOfMonth(callback2);
+					} else {
+						console.log("END of Month", callback2);
+						if (typeof callback2 === "function") {
+							callback2();
+						}
+					}
+				});
+			}
+			
+			inx2 = 0;
+			max_inx2 = argsOut.length - 1;
+			focus_hs_code = hs_code;
+			
+			console.log("Go in f loopReadDataOut", inx, max_inx);
+			
+			if (inx <= max_inx) {
+				console.log("Next hs code inx:", inx);
+				
+				loopGetOutOfMonth(function() {
+					inx++;
+					console.log("Add inx to ", inx);
+					loopReadDataOut(callback());
+				});
+			} else {
+				console.log("END of hs code");
+				
+				if (typeof callback === "function") {
+					callback();
+				}
+			}
+		};
+		
+		if ($("#list-out > li.select").length > 0) {
+			inx = 0;
+			max_inx = $("#list-out > li.select").length - 1;
+			loopReadDataOut(function() {
+				console.log("OK !", dataOutSave);
 			});
 		}
 	});
@@ -282,6 +380,7 @@ $(function() {
   <section id="result">
     <article>
       <canvas id="chart-line-in"></canvas>
+      <canvas id="chart-line-out"></canvas>
     </article>
   </section>
 </body>

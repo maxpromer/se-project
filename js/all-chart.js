@@ -55,6 +55,45 @@ var configChartLineIn = {
 	}
 };
 
+var configChartLineOut = {
+	type: 'line',
+	data: {
+		labels: [],
+		datasets: []
+	},
+	options: {
+		responsive: true,
+		title: {
+			display: true,
+			text: 'ราคาเฉลี่ยต่างประเทศ'
+		},
+		tooltips: {
+			mode: 'index',
+			intersect: false,
+		},
+		hover: {
+			mode: 'nearest',
+			intersect: true
+		},
+		scales: {
+			xAxes: [{
+				display: true,
+				scaleLabel: {
+					display: true,
+					labelString: 'เดือน'
+				}
+			}],
+			yAxes: [{
+				display: true,
+				scaleLabel: {
+					display: true,
+					labelString: 'ราคา'
+				}
+			}]
+		}
+	}
+};
+
 $(function() {
-	window.myLine = new Chart($("#chart-line-in")[0], configChartLineIn);
+	window.myLineIn = new Chart($("#chart-line-in")[0], configChartLineIn);
 });
