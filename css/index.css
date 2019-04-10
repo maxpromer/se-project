@@ -147,12 +147,13 @@ section#search > .when-have-keyword > .box-list > div > ul > li.select {
 }
 
 #result {
-	width: 1024px;
+	/* width: 1024px; */
 	margin: auto;
-	margin-top: 20px;
+	/* margin-top: 20px; */
 	/* display: none; */
 	display: flex;
 	flex-direction: row;
+	padding: 10px;
 }
 
 #result > article {
@@ -160,7 +161,7 @@ section#search > .when-have-keyword > .box-list > div > ul > li.select {
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
 	width: 50%;
 	margin: 10px;
-	padding: 10px;
+	padding: 20px;
 	
 	display: none;
 }

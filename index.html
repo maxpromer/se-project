@@ -19,51 +19,56 @@ var max_inx2 = 0;
 var focus_hs_code = "";
 	
 var dataOutSave = { };
-	
+var timerCap;
+
 $(function() {
     $("#keyword").keyup(function() {
-        let keyword = $(this).val();
-		
-		$("#list-in").html("<i>Loading...</i>");
-		$("#list-out").html("<i>Loading...</i>");
-		
-		$.getJSON("https://dataapi.moc.go.th/gis-products?keyword=" + encodeURI(keyword), function(data) {
-            // console.log("gis", data);
+		clearTimeout(timerCap);
 			
-			var html = "";
-			for (var i=0;i<data.length;i++) {
-				html += "<li data-product-id=\"" + data[i].product_id + "\">";
-				html += "<span class=\"name\">" + data[i].product_name + "</span>";
-                html += "<span class=\"count\"></span>";
-            	html += "</li>";
-			}
-			$("#list-in").html(html);
-			
-			$("#list-in > li").click(function() {
-				$(this).toggleClass("select");
-			});
-		});
-		
-		$.getJSON("https://dataapi.moc.go.th/products?keyword=" + encodeURI(keyword), function(data) {
-            // console.log("Products", data);
-			
-			var html = "";
-			for (var i=0;i<data.length;i++) {
-				if (data[i].hs_description_th == null || data[i].hs_description_th === "อื่น ๆ") {
-					continue;
+		timerCap = setTimeout(function() {
+			let keyword = $("#keyword").val();
+
+			$("#list-in").html("<i>Loading...</i>");
+			$("#list-out").html("<i>Loading...</i>");
+
+			$.getJSON("https://dataapi.moc.go.th/gis-products?keyword=" + encodeURI(keyword), function(data) {
+				// console.log("gis", data);
+
+				var html = "";
+				for (var i=0;i<data.length;i++) {
+					html += "<li data-product-id=\"" + data[i].product_id + "\">";
+					html += "<span class=\"name\">" + data[i].product_name + "</span>";
+					html += "<span class=\"count\"></span>";
+					html += "</li>";
 				}
-				
-				html += "<li data-hs-code=\"" + data[i].hs_code + "\">";
-				html += "<span class=\"name\">" + data[i].hs_description_th + "</span>";
-                html += "<span class=\"count\"></span>";
-            	html += "</li>";
-			}
-			$("#list-out").html(html);
-			
-			$("#list-out > li").click(function() {
-				$(this).toggleClass("select");
+				$("#list-in").html(html);
+
+				$("#list-in > li").click(function() {
+					$(this).toggleClass("select");
+				});
 			});
-		});
+
+			$.getJSON("https://dataapi.moc.go.th/products?imex_type=export&order_by=hs_code&revision=2017&keyword=" + encodeURI(keyword), function(data) {
+				// console.log("Products", data);
+
+				var html = "";
+				for (var i=0;i<data.length;i++) {
+					if (data[i].hs_description_th == null || data[i].hs_description_th === "อื่น ๆ") {
+						continue;
+					}
+
+					html += "<li data-hs-code=\"" + data[i].hs_code + "\">";
+					html += "<span class=\"name\">" + data[i].hs_description_th + "</span>";
+					html += "<span class=\"count\"></span>";
+					html += "</li>";
+				}
+				$("#list-out").html(html);
+
+				$("#list-out > li").click(function() {
+					$(this).toggleClass("select");
+				});
+			});
+		}, 500);
     });
 	
 	$("#let-go").click(function() {
@@ -138,7 +143,9 @@ $(function() {
 			loopReadDataIn(0, $("#list-in > li.select").length - 1, function() {
 				console.log("OK !");
 				
-				$(".box-in").show();
+				$("#search").fadeOut(400, function() {
+					$(".box-in").fadeIn(400);
+				});
 			});
 		}
 		
@@ -273,7 +280,9 @@ $(function() {
 				
 				
 				window.myLineOut.update();
-				$(".box-out").show();
+				$("#search").fadeOut(400, function() {
+					$(".box-out").fadeIn(400);
+				});
 			});
 		}
 	});
