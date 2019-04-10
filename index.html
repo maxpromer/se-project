@@ -23,97 +23,12 @@ var dataOutSave = { };
 $(function() {
     $("#keyword").keyup(function() {
         let keyword = $(this).val();
-        
-		/*
-        $.getJSON("https://dataapi.moc.go.th/gis-products?keyword=" + encodeURI(keyword), function(data) {
-            console.log(data);
-			
-			var html = "";
-			for (var i=0;i<data.length;i++) {
-				html += "<li data-product-id=\"" + data[i].product_id + "\">";
-				html += "<span class=\"name\">" + data[i].product_name + "</span>";
-                html += "<span class=\"count\"></span>";
-            	html += "</li>";
-			}
-			$("#autocomplete > ul").html(html);
-			if (data.length > 0) {
-				$("#autocomplete").show();
-			} else {
-				$("#autocomplete").hide();
-			}
-			
-			$("#autocomplete > ul > li").click(function() {
-				$("#keyword").val($(this).find(".name").text());
-				product_id = $(this).attr("data-product-id");
-				
-				$("#autocomplete").hide();
-				
-				setTimeout(function() {
-					$("#search").fadeOut(500, function() {
-						var today = new Date();
-						var tMonth = today.getMonth() + 1;
-						var yyyy = today.getFullYear();
-						if ((tMonth - 1) < 1) {
-							tMonth = 12 - (1 - tMonth);
-							yyyy = yyyy - 1;
-						}
-						var mm = String(tMonth).padStart(2, '0'); //January is 0!
-						to_date = yyyy + "-" + mm + "-01";
-
-						var m = today.getMonth() + 1;
-						var yyyy = today.getFullYear();
-						var from_m = m;
-						if ((m - 7) < 1) {
-							from_m = 12 - (6 - m);
-							yyyy = yyyy - 1;
-						}
-						var from_mm = String(from_m).padStart(2, '0');
-						from_date = yyyy + "-" + from_mm + "-01";
-
-						$.getJSON("https://dataapi.moc.go.th/gis-product-prices?product_id=" + encodeURI(product_id) + "&from_date=" + encodeURI(from_date) +"&to_date=" + encodeURI(to_date), function(data) {
-							console.log(data);
-
-							config.options.title.text = $("#keyword").val();
-
-							var now_m = (new Date(data.price_list[0].date)).getMonth() + 1;
-							var sum = 0;
-							var count = 0;
-							for (var i=0;i<data.price_list.length;i++) {
-								var it_m = (new Date(data.price_list[i].date)).getMonth() + 1;
-								if (now_m != it_m) { // New Month
-									config.data.labels.push(now_m)
-									config.data.datasets[0].data.push(Math.round(sum / count * 100) / 100);
-
-									count = 0;
-									sum = 0;
-									now_m = it_m;
-								} else {
-									sum += ((data.price_list[i].price_max + data.price_list[i].price_min) / 2);
-									count++;
-								}
-							}
-
-							/*
-							for (var i=0;i<data.price_list.length;i++) {
-								config.data.labels.push(data.price_list[i].date)
-								config.data.datasets[0].data.push((data.price_list[i].price_max + data.price_list[i].price_min) / 2);
-							}
-							*/
-							/*
-							window.myLine.update();
-							$("#result").fadeIn();
-						});
-					});
-				}, 300);
-			});
-        });
-		*/
 		
 		$("#list-in").html("<i>Loading...</i>");
 		$("#list-out").html("<i>Loading...</i>");
 		
 		$.getJSON("https://dataapi.moc.go.th/gis-products?keyword=" + encodeURI(keyword), function(data) {
-            console.log("gis", data);
+            // console.log("gis", data);
 			
 			var html = "";
 			for (var i=0;i<data.length;i++) {
@@ -130,7 +45,7 @@ $(function() {
 		});
 		
 		$.getJSON("https://dataapi.moc.go.th/products?keyword=" + encodeURI(keyword), function(data) {
-            console.log("Products", data);
+            // console.log("Products", data);
 			
 			var html = "";
 			for (var i=0;i<data.length;i++) {
@@ -222,6 +137,8 @@ $(function() {
 		if ($("#list-in > li.select").length > 0) {
 			loopReadDataIn(0, $("#list-in > li.select").length - 1, function() {
 				console.log("OK !");
+				
+				$(".box-in").show();
 			});
 		}
 		
@@ -229,10 +146,9 @@ $(function() {
 		// ราคานอกประเทศ
 		var argsOut = [];
 		var today = new Date();
-		for (i=0;i<6;i++) {
+		for (i=5;i>=0;i--) {
 			var year, month;
-				
-				
+
 			if (today.getMonth() - i <= 0) {
 				month = today.getMonth() + 12 - i - 1;
 				year = today.getFullYear() - 1;
@@ -248,7 +164,7 @@ $(function() {
 				month: month
 			});
 		}
-		console.log("argsOut", argsOut);
+		// console.log("argsOut", argsOut);
 		
 		var loopReadDataOut = function(callback) {
 			var hs_code = $($("#list-out > li.select")[inx]).attr("data-hs-code");
@@ -257,23 +173,30 @@ $(function() {
 				var year = argsOut[inx2].year;
 				var month = argsOut[inx2].month;
 				
-				console.log("Start get", focus_hs_code, "Y:", year, "M:", month, "inx2:", inx2);
+				// console.log("Start get", focus_hs_code, "Y:", year, "M:", month, "inx2:", inx2);
 				
 				$.getJSON("https://dataapi.moc.go.th/export-harmonize-countries?year=" + year + "&month=" + month + "&hs_code=" + focus_hs_code, function(data) {
-					console.log("Get of month", data);
+					// console.log("Get of month", data);
 					
 					if (typeof dataOutSave[focus_hs_code] === "undefined") {
 						dataOutSave[focus_hs_code] = [];
 					}
 					dataOutSave[focus_hs_code].push(data);
-					
+				}).fail(function(jqXHR, textStatus, errorThrown) {
+					console.log("Error");
+					if (typeof dataOutSave[focus_hs_code] === "undefined") {
+						dataOutSave[focus_hs_code] = [];
+					}
+					dataOutSave[focus_hs_code].push([ ]);
+				}).always(function() {
+					// console.log("Run always");
 					if (inx2 < max_inx2) {
-						console.log("Next Month");
+						// console.log("Next Month");
 						
 						inx2++;
 						loopGetOutOfMonth(callback2);
 					} else {
-						console.log("END of Month", callback2);
+						// console.log("END of Month", callback2);
 						if (typeof callback2 === "function") {
 							callback2();
 						}
@@ -285,30 +208,72 @@ $(function() {
 			max_inx2 = argsOut.length - 1;
 			focus_hs_code = hs_code;
 			
-			console.log("Go in f loopReadDataOut", inx, max_inx);
+			// console.log("Go in f loopReadDataOut", inx, max_inx);
 			
-			if (inx <= max_inx) {
-				console.log("Next hs code inx:", inx);
-				
-				loopGetOutOfMonth(function() {
+			
+			loopGetOutOfMonth(function() {
+				if (inx < max_inx) {
+					// console.log("Next hs code inx:", inx);
 					inx++;
-					console.log("Add inx to ", inx);
-					loopReadDataOut(callback());
-				});
-			} else {
-				console.log("END of hs code");
 				
-				if (typeof callback === "function") {
-					callback();
+					// console.log("Add inx to ", inx);
+					loopReadDataOut(callback);
+				} else {
+					console.log("END of hs code");
+
+					if (typeof callback === "function") {
+						callback();
+					}
 				}
-			}
+			});
+			
 		};
 		
 		if ($("#list-out > li.select").length > 0) {
 			inx = 0;
 			max_inx = $("#list-out > li.select").length - 1;
+			
+			dataOutSave = [];
+			
 			loopReadDataOut(function() {
 				console.log("OK !", dataOutSave);
+				
+				// Add rows
+				if (configChartLineOut.data.labels.length === 0) {
+					argsOut.forEach(function(value) {
+						configChartLineOut.data.labels.push(value.month);
+					});
+				}
+				
+				// Add Data to chart
+				var inx=0;
+				Object.keys(dataOutSave).forEach(function (key) {
+					configChartLineOut.data.datasets[inx] = {
+						label: $("#list-out > li.select[data-hs-code='" + key + "']").text(),
+						backgroundColor: window.chartColors[inx%6],
+						borderColor: window.chartColors[inx%6],
+						data: [],
+						fill: false,
+					};
+						
+					dataOutSave[key].forEach(function(valueArr , index) {
+						var sum = 0, count = 0;
+						valueArr.forEach(function(value , index) {
+							// console.log("inx", index, "Value", value)
+							sum += value.value_baht / value.quantity; // ราคารวม / จำนวณที่ส่งออก
+							count++;
+						});
+							
+						configChartLineOut.data.datasets[inx].data.push(Math.round(((sum / count) || 0) * 100) / 100);
+					});
+						
+					inx++;
+				});
+				
+				
+				
+				window.myLineOut.update();
+				$(".box-out").show();
 			});
 		}
 	});
@@ -378,8 +343,10 @@ $(function() {
   </section>
   
   <section id="result">
-    <article>
+    <article class="box-in">
       <canvas id="chart-line-in"></canvas>
+    </article>
+    <article class="box-out">
       <canvas id="chart-line-out"></canvas>
     </article>
   </section>

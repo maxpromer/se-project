@@ -96,4 +96,5 @@ var configChartLineOut = {
 
 $(function() {
 	window.myLineIn = new Chart($("#chart-line-in")[0], configChartLineIn);
+	window.myLineOut = new Chart($("#chart-line-out")[0], configChartLineOut);
 });

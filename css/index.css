@@ -150,7 +150,9 @@ section#search > .when-have-keyword > .box-list > div > ul > li.select {
 	width: 1024px;
 	margin: auto;
 	margin-top: 20px;
-	display: none;
+	/* display: none; */
+	display: flex;
+	flex-direction: row;
 }
 
 #result > article {
@@ -159,6 +161,8 @@ section#search > .when-have-keyword > .box-list > div > ul > li.select {
 	width: 50%;
 	margin: 10px;
 	padding: 10px;
+	
+	display: none;
 }
 
 
