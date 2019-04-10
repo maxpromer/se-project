@@ -65,7 +65,7 @@ var configChartLineOut = {
 		responsive: true,
 		title: {
 			display: true,
-			text: 'ราคาเฉลี่ยต่างประเทศ'
+			text: 'ราคาส่งออกโดยเฉลี่ย'
 		},
 		tooltips: {
 			mode: 'index',

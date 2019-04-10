@@ -267,7 +267,10 @@ $(function() {
 						var sum = 0, count = 0;
 						valueArr.forEach(function(value , index) {
 							// console.log("inx", index, "Value", value)
-							sum += value.value_baht / value.quantity; // ราคารวม / จำนวณที่ส่งออก
+							if (value.quantity === 0) { // ไม่นับประเทศที่ไม่มีการส่งออก
+								return;
+							}
+							sum += value.value_baht / value.quantity; // ราคารวม / จำนวนที่ส่งออก
 							count++;
 						});
 							
