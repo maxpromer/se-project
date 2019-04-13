@@ -27,6 +27,12 @@ $(function() {
 			
 		timerCap = setTimeout(function() {
 			let keyword = $("#keyword").val();
+			
+			if (keyword.length < 3) {
+				return;	
+			}
+			
+			$(".when-have-keyword").fadeIn();
 
 			$("#list-in").html("<i>Loading...</i>");
 			$("#list-out").html("<i>Loading...</i>");
@@ -44,6 +50,8 @@ $(function() {
 				$("#list-in").html(html);
 
 				$("#list-in > li").click(function() {
+					$(".box-let-go").fadeIn();
+					
 					$(this).toggleClass("select");
 				});
 			});
@@ -65,6 +73,8 @@ $(function() {
 				$("#list-out").html(html);
 
 				$("#list-out > li").click(function() {
+					$(".box-let-go").fadeIn();
+					
 					$(this).toggleClass("select");
 				});
 			});
@@ -286,6 +296,105 @@ $(function() {
 				$("#search").fadeOut(400, function() {
 					$(".box-out").fadeIn(400);
 				});
+				
+				
+				// ราคาส่งออกรายประเทศ
+				window.myLinePrice = { };
+				Object.keys(dataOutSave).forEach(function(hs_code) {
+					var data = dataOutSave[hs_code];
+					var ele_id = "chart-line-price-" + hs_code;
+					
+					var configChartLineTemp = {
+						type: 'line',
+						data: {
+							labels: [],
+							datasets: []
+						},
+						options: {
+							responsive: true,
+							title: {
+								display: true,
+								text: 'ราคาส่งออก' + $("#list-out > li.select[data-hs-code='" + hs_code + "']").text(),
+							},
+							tooltips: {
+								mode: 'index',
+								intersect: false,
+							},
+							hover: {
+								mode: 'nearest',
+								intersect: true
+							},
+							scales: {
+								xAxes: [{
+									display: true,
+									scaleLabel: {
+										display: true,
+										labelString: 'เดือน'
+									}
+								}],
+								yAxes: [{
+									display: true,
+									scaleLabel: {
+										display: true,
+										labelString: 'ราคา'
+									}
+								}]
+							}
+						}
+					};
+					
+					argsOut.forEach(function(value) {
+						configChartLineTemp.data.labels.push(value.month);
+					});
+					
+					// Loop data
+					var dataTemp = {};
+					var shortNameToFullName = {};
+					for (inx=0;inx<data.length;inx++) {
+						
+						// ได้รายการประเทศ
+						data[inx].forEach(function(value) {
+							if (typeof dataTemp[value.country_code] === "undefined") {
+								dataTemp[value.country_code] = [];
+								shortNameToFullName[value.country_code] = value.country_name_en;
+							}
+							
+							dataTemp[value.country_code][inx] = value.value_baht / value.quantity || 0;
+							dataTemp[value.country_code][inx] = Math.round((dataTemp[value.country_code][inx] * 100) / 100);
+						});
+					}
+					
+					for (inx=0;inx<data.length;inx++) {
+						Object.keys(dataTemp).forEach(function(key) {
+							if (typeof dataTemp[key][inx] === "undefined") {
+								dataTemp[key][inx] = 0;
+							}
+						});
+					}
+					
+					// console.log(dataTemp);
+					
+					function getRndInteger(min, max) {
+						return Math.floor(Math.random() * (max - min) ) + min;
+					}
+					
+					Object.keys(dataTemp).forEach(function(country_code) {
+						var color = window.chartColors[getRndInteger(0, 5)];
+						configChartLineTemp.data.datasets.push({
+							label: shortNameToFullName[country_code],
+							backgroundColor: color,
+							borderColor: color,
+							data: dataTemp[country_code],
+							fill: false,
+						});
+					});
+					
+					console.log(configChartLineTemp);
+			
+					$("#result").append("<article class=\"add-ons\"><canvas id=\"" + ele_id + "\"></canvas></article>");
+					window.myLinePrice[hs_code] = new Chart($("#" + ele_id)[0], configChartLineTemp);
+				});
+				// จบราคาส่งออกรายประเทศ
 			});
 		}
 	});
@@ -311,7 +420,7 @@ $(function() {
     </div>
     <article>
       <form action="." method="post">
-        <input type="text" id="keyword" name="keyword" autocomplete="off">
+        <input type="text" id="keyword" name="keyword" autocomplete="off" placeholder="พิมพ์คำค้นหา">
         <!-- <button type="submit">ค้นหา</button> -->
         
         <div id="autocomplete">
